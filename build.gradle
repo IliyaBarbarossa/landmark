@@ -1,19 +1,137 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.liquibase:liquibase-core:4.30.0'
+    }
+}
+
+
 plugins {
     id 'java'
+    id 'war'
+    id 'com.github.sahara3.tomcat-runner' version '0.3.0'
+    id 'org.liquibase.gradle' version '3.0.1'
 }
 
 group = 'com.github.IliyaBarbarossa'
 version = '1.0-SNAPSHOT'
+
+tasks.withType(JavaCompile,  {
+    options.compilerArgs.add("-parameters")
+})
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    // базовый спринг
+    implementation 'org.springframework:spring-context:6.1.14'
+
+    //  для создания контроллеров
+    implementation 'org.springframework:spring-webmvc:6.1.14'
+
+    //для преобразование в json
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+
+
+    // для сервлетов
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+    testImplementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+
+
+    // для логирования
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+    implementation 'ch.qos.logback:logback-classic:1.5.8'
+
+
+    // ламбок для кода
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+
+    // MapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+
+    //подключение к БД :
+
+    // Соединение с бд
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+
+    //Драйвер для бд
+    implementation 'org.postgresql:postgresql:42.7.4'
+
+    // спринг дата + хибернейт
+    implementation 'org.springframework.data:spring-data-jpa:3.3.4'
+    implementation 'org.hibernate:hibernate-core:6.6.1.Final'
+
+
+    //тесты
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    testImplementation 'org.springframework:spring-test:6.1.14'
+
+    testImplementation "org.testcontainers:junit-jupiter:1.20.4"
+    testImplementation "org.testcontainers:postgresql:1.20.4"
+
+    // ламбок для тестов
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+
+    // liquidbase
+    implementation 'org.liquibase:liquibase-core:4.30.0'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.30.0'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
+    liquibaseRuntime 'info.picocli:picocli:4.6.1'
+    liquibaseRuntime 'org.postgresql:postgresql:42.7.4'
+
+
 }
 
-test {
+//liquibase {
+//    activities {
+//        main {
+//            changelogFile "src/main/resources/changelog.sql"
+//            url "jdbc:postgresql://localhost:5432/CityExcursions?currentSchema=exc"
+//            username "melkii"
+//            password "postgres"
+//        }
+//
+//        test {
+//            changelogFile "src/main/resources/changelog.sql"
+//            url "jdbc:postgresql://localhost:5432/CityExcursions?currentSchema=exc_test"
+//            username "melkii"
+//            password "postgres"
+//        }
+//    }
+//}
+
+
+tomcat {
+    version = '10.1.30'
+    port = 8098
+
+    webapp(project(':')) {
+        contextPath = '' // root context.
+    }
+}
+//
+//tomcatRun {
+//    dependsOn update
+//}
+//
+//update {
+//    dependsOn dropAll
+//}
+
+
+
+tasks.test {
     useJUnitPlatform()
 }
